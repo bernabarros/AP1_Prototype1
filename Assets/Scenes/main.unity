@@ -7191,6 +7191,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -533650490, guid: a407a3b3fefdc4b4595de46072f1ba58, type: 3}
     - target: {fileID: 682184913696059673, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 682184913696059673, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 1
       objectReference: {fileID: 0}
@@ -7198,6 +7202,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 682184914850520923, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
+      propertyPath: sprite
+      value: 
+      objectReference: {fileID: 1833799969}
     - target: {fileID: 682184914850520923, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
       propertyPath: collisionMaskA.m_Bits
       value: 1

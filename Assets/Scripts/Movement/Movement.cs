@@ -676,7 +676,6 @@ namespace Giometric.UniSonic
             }
             grappleLine.enabled = false;
 
-            // var scatterRingPoolGameObject = new GameObject("ScatterRingPool");
             // scatterRingPoolRoot = scatterRingPoolGameObject.transform;
             // scatterRingsPool = new ObjectPool<ScatterRing>(
             //     CreatePooledScatterRing,
@@ -908,15 +907,16 @@ namespace Giometric.UniSonic
 
                 for (int i = 0; i < hitCount; ++i)
                 {
-                    var wallHit = hitResultsCache[i];
-                    var platform = wallHit.collider.GetComponent<OneWayPlatform>();
+                    RaycastHit2D wallHit = hitResultsCache[i];
+                    OneWayPlatform platform = wallHit.collider.GetComponent<OneWayPlatform>();
                     if (platform != null)
                     {
                         // Wall collisions don't hit one-way platforms
                         continue;
                     }
 
-                    var groundTile = Utils.GetGroundTile(wallHit, out var tileTransform, ShowDebug);
+                    Matrix4x4 tileTransform;
+                    GroundTile groundTile = Utils.GetGroundTile(wallHit, out tileTransform, ShowDebug);
                     if (groundTile != null && groundTile.IsOneWayPlatform)
                     {
                         // Wall collisions don't hit one-way platform tiles
@@ -959,15 +959,16 @@ namespace Giometric.UniSonic
 
                 for (int i = 0; i < hitCount; ++i)
                 {
-                    var wallHit = hitResultsCache[i];
-                    var platform = wallHit.collider.GetComponent<OneWayPlatform>();
+                    RaycastHit2D wallHit = hitResultsCache[i];
+                    OneWayPlatform platform = wallHit.collider.GetComponent<OneWayPlatform>();
                     if (platform != null)
                     {
                         // Wall collisions don't hit one-way platforms
                         continue;
                     }
 
-                    var groundTile = Utils.GetGroundTile(wallHit, out var tileTransform, ShowDebug);
+                    Matrix4x4 tileTransform;
+                    GroundTile groundTile = Utils.GetGroundTile(wallHit, out tileTransform, ShowDebug);
                     if (groundTile != null && groundTile.IsOneWayPlatform)
                     {
                         // Wall collisions don't hit one-way platform tiles
@@ -1159,6 +1160,8 @@ namespace Giometric.UniSonic
 
                     // TODO: Keep track of when jump button was last pressed so we can do looser jump timing
                     bool isWallDirectionalJump = isWallMode && hasVerticalInput && jumpPressed;
+                    bool isGrappleWallUpJump = grappleAttached && grappleWallAttached && InputMove.y > 0f
+                        && Mathf.Approximately(InputMove.x, 0f) && jumpPressed;
                     if (((!LookingDown && InputMove.y >= 0f && jumpPressed) || isDownJump || isWallDirectionalJump) && !lowCeiling)
                     {
                         float jumpVel = CurrentMovementSettings.JumpVelocity * (isDownJump && !isWallMode ? 1.15f : 1f);
@@ -1166,6 +1169,10 @@ namespace Giometric.UniSonic
                         if (isWallDirectionalJump && InputMove.y < 0f)
                         {
                             velocity = Vector2.down * jumpVel;
+                        }
+                        else if (isGrappleWallUpJump)
+                        {
+                            velocity = Vector2.up * jumpVel;
                         }
                         else
                         {
@@ -1522,7 +1529,7 @@ namespace Giometric.UniSonic
                 {
                     if (currentGroundInfo.Hit.rigidbody != null)
                     {
-                        var dynamicPlatform = currentGroundInfo.Hit.rigidbody.GetComponent<DynamicPlatform>();
+                        DynamicPlatform dynamicPlatform = currentGroundInfo.Hit.rigidbody.GetComponent<DynamicPlatform>();
                         if (dynamicPlatform != null)
                         {
                             dynamicPlatform.PlayerGroundedOnPlatform(this);
@@ -1609,7 +1616,7 @@ namespace Giometric.UniSonic
                 }
                 else
                 {
-                    var stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+                    AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
                     if (stateInfo.tagHash == brakeTagHash && stateInfo.normalizedTime >= 1f)
                     {
                         isBraking = false;
@@ -1638,7 +1645,7 @@ namespace Giometric.UniSonic
                 }
                 else
                 {
-                    var stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+                    AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
                     if (stateInfo.tagHash == jumpSpinTagHash && stateInfo.normalizedTime >= 1f)
                     {
                         isJumpSpinning = false;
@@ -1779,7 +1786,7 @@ namespace Giometric.UniSonic
             // Physics2D.Raycast results should be sorted by distance, so find the first valid result
             for (int i = 0; i < hitCount; ++i)
             {
-                var hit = hitResultsCache[i];
+                RaycastHit2D hit = hitResultsCache[i];
 
                 if (hit.distance < minValidDistance || hit.distance > maxValidDistance)
                 {
@@ -1789,14 +1796,15 @@ namespace Giometric.UniSonic
 
                 if (ceilingCheck || groundMode != GroundMode.Floor)
                 {
-                    var platform = hit.collider.GetComponent<OneWayPlatform>();
+                    OneWayPlatform platform = hit.collider.GetComponent<OneWayPlatform>();
                     Vector2 oneWayPlatformCheckDirection = Grounded ? -currentGroundInfo.Normal : Vector2.down;
                     if (platform != null && (ceilingCheck || !platform.CanCollideInDirection(oneWayPlatformCheckDirection))) // TODO: Revisit this, it might cause trouble
                     {
                         continue;
                     }
 
-                    var groundTile = Utils.GetGroundTile(hit, out var tileTransform, ShowDebug);
+                    Matrix4x4 tileTransform;
+                    GroundTile groundTile = Utils.GetGroundTile(hit, out tileTransform, ShowDebug);
                     if (groundTile != null && groundTile.IsOneWayPlatform) // TODO: Also check angle
                     {
                         continue;
@@ -1863,7 +1871,8 @@ namespace Giometric.UniSonic
                     // If this check found no ground but one of the side ones did, we should check again for being very far off-ledge
                     // This check will be halfway between center and left or right, whichever one did find ground
                     Vector2 halfSideCastStart = Vector2.Lerp(centerCastStart, groundedLeft ? leftCastStart : rightCastStart, 0.5f);
-                    bool groundedHalfSide = GroundRaycast(halfSideCastStart, dir, groundRaycastDist, filter, minValidDistance, maxValidDistance, false, out var halfSideHit);
+                    RaycastHit2D halfSideHit;
+                    bool groundedHalfSide = GroundRaycast(halfSideCastStart, dir, groundRaycastDist, filter, minValidDistance, maxValidDistance, false, out halfSideHit);
                     if (groundedHalfSide)
                     {
                         ledgeValue = 1;

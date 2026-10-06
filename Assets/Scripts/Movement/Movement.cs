@@ -660,8 +660,6 @@ namespace Giometric.UniSonic
             grappleLine.startWidth = grappleLineWidth;
             grappleLine.endWidth = grappleLineWidth;
             grappleLine.numCapVertices = 4;
-            grappleLine.startColor = new Color(1f, 0.8f, 0.25f);
-            grappleLine.endColor = grappleLine.startColor;
             if (grappleLine.sharedMaterial == null)
             {
                 Shader lineShader = Shader.Find("Sprites/Default");
@@ -674,7 +672,7 @@ namespace Giometric.UniSonic
             if (sprite != null)
             {
                 grappleLine.sortingLayerID = sprite.sortingLayerID;
-                grappleLine.sortingOrder = sprite.sortingOrder + 1;
+                grappleLine.sortingOrder = sprite.sortingOrder - 1;
             }
             grappleLine.enabled = false;
 
@@ -1163,7 +1161,7 @@ namespace Giometric.UniSonic
                     bool isWallDirectionalJump = isWallMode && hasVerticalInput && jumpPressed;
                     if (((!LookingDown && InputMove.y >= 0f && jumpPressed) || isDownJump || isWallDirectionalJump) && !lowCeiling)
                     {
-                        float jumpVel = CurrentMovementSettings.JumpVelocity * (isDownJump && !isWallMode ? 1.5f : 1f);
+                        float jumpVel = CurrentMovementSettings.JumpVelocity * (isDownJump && !isWallMode ? 1.15f : 1f);
                         Vector2 jumpDirection = new Vector2(-sinGroundAngle, cosGroundAngle);
                         if (isWallDirectionalJump && InputMove.y < 0f)
                         {

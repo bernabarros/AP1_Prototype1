@@ -1,4 +1,5 @@
-﻿using Giometric.UniSonic.Objects;
+using System.Collections.Generic;
+using Giometric.UniSonic.Objects;
 using UnityEngine;
 
 namespace Giometric.UniSonic
@@ -12,6 +13,8 @@ namespace Giometric.UniSonic
 
     public class Movement : MonoBehaviour
     {
+        private const string grapplePointTag = "GrapplePoint";
+
         enum GroundMode
         {
             Floor = 0,
@@ -48,6 +51,7 @@ namespace Giometric.UniSonic
         [Header("Grapple")]
         [SerializeField] private float grappleRange = 96f;
         [SerializeField] private float grapplePullSpeed = 480f;
+        [SerializeField] private float grapplePointLaunchSpeed = 480f;
         [SerializeField, Range(0f, 1f)] private float unattachedGrappleVisualScale = 0.25f;
         [SerializeField] private float grappleButtonAnimationDuration = 0.14f;
         [SerializeField] private float grappleLineWidth = 2f;
@@ -67,7 +71,7 @@ namespace Giometric.UniSonic
                 else { return standingHeightHalf; }
             }
         }
-        
+
         private float rollingPositionOffset
         {
             get { return (standingHeightHalf - ballHeightHalf); }
@@ -98,7 +102,7 @@ namespace Giometric.UniSonic
 
         [SerializeField] private LayerMask collisionMaskA;
         [SerializeField] private LayerMask collisionMaskB;
-        
+
         [Header("Movement Settings")]
         [SerializeField] private MovementSettings baseMovementSettings;
         [SerializeField] private MovementSettings underwaterMovementSettings;
@@ -132,19 +136,19 @@ namespace Giometric.UniSonic
         [Tooltip("The minimum absolute X velocity the character must have for air drag to be applied.")]
         [SerializeField] private float airDragXVelocityThreshold = 450f;
         [Tooltip("While in the air, the rate at which character will rotate to their upright angle (degrees per second).")]
-        [SerializeField]private float uprightRotationRate = 168.75f;
+        [SerializeField] private float uprightRotationRate = 168.75f;
         [Tooltip("The animator state with this tag will have its duration checked to see if the braking animation should be stopped.")]
 
         [Header("Braking")]
-        [SerializeField]private string brakeTagName = "brake";
+        [SerializeField] private string brakeTagName = "brake";
         [Tooltip("If input movement is opposite ground speed direction and the character is moving at least this fast, play the brake animation.")]
-        [SerializeField]private float brakeGroundSpeedThreshold = 240f;
+        [SerializeField] private float brakeGroundSpeedThreshold = 240f;
 
         [Header("Springs")]
         [Tooltip("The animator state with this tag will have its duration checked to see if the jump spin animation should be stopped.")]
-        [SerializeField]private string jumpSpinTagName = "jumpSpin";
+        [SerializeField] private string jumpSpinTagName = "jumpSpin";
         [Tooltip("When using the plain jump spin animation, the sprite will be held for this duration before returning to the walk animation.")]
-        [SerializeField]private float springJumpDuration = 0.8f;
+        [SerializeField] private float springJumpDuration = 0.8f;
 
         /// <Summary>
         /// The transform used to define where the water level is for this scene, if any.
@@ -207,7 +211,7 @@ namespace Giometric.UniSonic
         private float spinDashRev = 0f;
 
         private float groundSpeed;
-    
+
         /// <Summary>
         /// Speed along the ground. Only valid if the character is grounded.
         /// </Summary>
@@ -234,6 +238,8 @@ namespace Giometric.UniSonic
         private Vector2 grappleReleaseEnd;
         private bool grappleTargetIsOneWayPlatform;
         private bool grappleShouldJumpToPlatform;
+        private bool grappleTargetIsGrapplePoint;
+        private Vector2 grapplePointLaunchDirection;
         private Vector2 grappleAnchor;
         private Vector2 grappleNormal;
         private Vector2 grapplePlatformNormal;
@@ -297,7 +303,7 @@ namespace Giometric.UniSonic
             get { return velocity; }
             set { velocity = value; }
         }
-        
+
         /// <summary>
         /// The current collision layer mask used for ground collisions.
         /// </summary>
@@ -378,6 +384,7 @@ namespace Giometric.UniSonic
         }
 
         private RaycastHit2D[] hitResultsCache = new RaycastHit2D[10];
+        private readonly List<RaycastHit2D> grappleHitResultsCache = new List<RaycastHit2D>();
 
         private int speedHash;
         private int standHash;
@@ -411,6 +418,7 @@ namespace Giometric.UniSonic
             grappleWallAttached = false;
             grappleTargetIsOneWayPlatform = false;
             grappleShouldJumpToPlatform = false;
+            grappleTargetIsGrapplePoint = false;
             groundSpeed = 0f;
             hControlLock = false;
             hControlLockTimer = 0f;
@@ -648,62 +656,14 @@ namespace Giometric.UniSonic
             Rings = 0;
             SetCollisionLayer(0);
 
-            if (grappleLine == null)
-            {
-                GameObject lineObject = new GameObject("Grapple Line");
-                lineObject.transform.SetParent(transform, false);
-                grappleLine = lineObject.AddComponent<LineRenderer>();
-            }
-
             grappleLine.useWorldSpace = true;
             grappleLine.positionCount = 2;
             grappleLine.startWidth = grappleLineWidth;
             grappleLine.endWidth = grappleLineWidth;
             grappleLine.numCapVertices = 4;
-            if (grappleLine.sharedMaterial == null)
-            {
-                Shader lineShader = Shader.Find("Sprites/Default");
-                if (lineShader != null)
-                {
-                    grappleLineMaterial = new Material(lineShader);
-                    grappleLine.sharedMaterial = grappleLineMaterial;
-                }
-            }
-            if (sprite != null)
-            {
-                grappleLine.sortingLayerID = sprite.sortingLayerID;
-                grappleLine.sortingOrder = sprite.sortingOrder - 1;
-            }
+            grappleLine.sortingLayerID = sprite.sortingLayerID;
+            grappleLine.sortingOrder = sprite.sortingOrder - 1;
             grappleLine.enabled = false;
-
-            // scatterRingPoolRoot = scatterRingPoolGameObject.transform;
-            // scatterRingsPool = new ObjectPool<ScatterRing>(
-            //     CreatePooledScatterRing,
-            //     OnScatterRingTakeFromPool,
-            //     OnScatterRingReturnToPool,
-            //     OnScatterRingDestroyPooledObject,
-            //     true,
-            //     scatterRingsCountLimit
-            // );
-            //
-            //
-            // if (scatterRingPrefab != null)
-            // {
-            //     // Unity's object pool provides no method for pre-creating the pooled items, so we do it ourselves
-            //     ScatterRing[] precreatedPool = new ScatterRing[scatterRingsCountLimit];
-            //     for (int i = 0; i < scatterRingsCountLimit; ++i)
-            //     {
-            //         precreatedPool[i] = scatterRingsPool.Get();
-            //     }
-            //     for (int i = 0; i < scatterRingsCountLimit; ++i)
-            //     {
-            //         scatterRingsPool.Release(precreatedPool[i]);
-            //     }
-            // }
-            // else
-            // {
-            //     Debug.LogWarning("Scatter ring prefab not set!", gameObject);
-            // }
         }
 
         private void LateUpdate()
@@ -823,7 +783,7 @@ namespace Giometric.UniSonic
                 GUILayout.Toggle(IsHit, "Is Hit");
                 GUILayout.Toggle(IsInvulnerable, "Is Invulnerable");
                 GUILayout.Label($"Rings: {Rings}");
-                GUILayout.Label(IsSpinDashing ? $"Spin Dash: {spinDashRev}": "SpinDash: --");
+                GUILayout.Label(IsSpinDashing ? $"Spin Dash: {spinDashRev}" : "SpinDash: --");
                 GUILayout.Label($"Timescale: {Time.timeScale:F2}x");
                 GUILayout.EndArea();
             }
@@ -1071,7 +1031,16 @@ namespace Giometric.UniSonic
                 {
                     transform.position = targetPosition;
                     grapplePulling = false;
-                    if (grappleShouldJumpToPlatform)
+                    if (grappleTargetIsGrapplePoint)
+                    {
+                        grappleAttached = false;
+                        grappleWallAttached = false;
+                        Grounded = false;
+                        groundMode = GroundMode.Floor;
+                        velocity = grapplePointLaunchDirection * grapplePointLaunchSpeed;
+                        Jumped = true;
+                    }
+                    else if (grappleShouldJumpToPlatform)
                     {
                         grappleAttached = false;
                         grappleWallAttached = false;
@@ -1093,6 +1062,7 @@ namespace Giometric.UniSonic
                     Rolling = false;
                     grappleTargetIsOneWayPlatform = false;
                     grappleShouldJumpToPlatform = false;
+                    grappleTargetIsGrapplePoint = false;
                 }
             }
 
@@ -1277,7 +1247,7 @@ namespace Giometric.UniSonic
                         {
                             groundSpeed = 0f;
                         }
-                        
+
                         Vector2 angledSpeed = new Vector2(groundSpeed * Mathf.Cos(currentGroundInfo.Angle), groundSpeed * Mathf.Sin(currentGroundInfo.Angle));
                         velocity = angledSpeed;
                     }
@@ -1365,7 +1335,7 @@ namespace Giometric.UniSonic
                         // Turn to face the direction of input
                         FacingDirection = Mathf.Sign(InputMove.x);
                     }
-                    
+
                     // Apply air drag, if our X and Y velocities are within the thresholds
                     if (shouldApplyAirDrag)
                     {
@@ -1682,29 +1652,54 @@ namespace Giometric.UniSonic
                 ? InputMove.normalized
                 : new Vector2(FacingDirection, 0f);
             ContactFilter2D filter = new ContactFilter2D();
-            filter.SetLayerMask(CurrentGroundMask);
             filter.useTriggers = true;
-            int hitCount = Physics2D.Raycast(transform.position, direction, filter, hitResultsCache, grappleRange);
+            filter.useLayerMask = false;
+            grappleHitResultsCache.Clear();
+            int hitCount = Physics2D.Raycast(transform.position, direction, filter, grappleHitResultsCache, grappleRange);
             RaycastHit2D hit = default;
             bool foundTarget = false;
+            bool foundGrapplePoint = false;
+
+            float closestGrapplePointDistance = float.PositiveInfinity;
             for (int i = 0; i < hitCount; i++)
             {
-                RaycastHit2D candidate = hitResultsCache[i];
+                RaycastHit2D candidate = grappleHitResultsCache[i];
                 if (candidate.collider.transform == transform || candidate.collider.transform.IsChildOf(transform))
                 {
                     continue;
                 }
 
-                bool isGroundSurface = (CurrentGroundMask.value & (1 << candidate.collider.gameObject.layer)) != 0 &&
-                    (!candidate.collider.isTrigger || candidate.collider.GetComponentInParent<OneWayPlatform>() != null);
-                if (!isGroundSurface)
+                if (candidate.collider.isTrigger &&
+                    HasGrapplePointTag(candidate.collider.transform) &&
+                    candidate.distance < closestGrapplePointDistance)
                 {
-                    continue;
+                    hit = candidate;
+                    closestGrapplePointDistance = candidate.distance;
+                    foundTarget = true;
+                    foundGrapplePoint = true;
                 }
+            }
 
-                hit = candidate;
-                foundTarget = true;
-                break;
+            if (!foundTarget)
+            {
+                float closestGroundDistance = float.PositiveInfinity;
+                for (int i = 0; i < hitCount; i++)
+                {
+                    RaycastHit2D candidate = grappleHitResultsCache[i];
+                    if (candidate.collider.transform == transform || candidate.collider.transform.IsChildOf(transform))
+                    {
+                        continue;
+                    }
+
+                    bool isGroundSurface = (CurrentGroundMask.value & (1 << candidate.collider.gameObject.layer)) != 0 &&
+                        (!candidate.collider.isTrigger || candidate.collider.GetComponentInParent<OneWayPlatform>() != null);
+                    if (isGroundSurface && candidate.distance < closestGroundDistance)
+                    {
+                        hit = candidate;
+                        closestGroundDistance = candidate.distance;
+                        foundTarget = true;
+                    }
+                }
             }
 
             if (!foundTarget)
@@ -1712,6 +1707,8 @@ namespace Giometric.UniSonic
                 return false;
             }
 
+            grappleTargetIsGrapplePoint = foundGrapplePoint;
+            grapplePointLaunchDirection = direction;
             OneWayPlatform oneWayPlatform = hit.collider.GetComponent<OneWayPlatform>();
             GroundTile groundTile = Utils.GetGroundTile(hit, out Matrix4x4 tileTransform, ShowDebug);
             grappleTargetIsOneWayPlatform = oneWayPlatform != null || (groundTile != null && groundTile.IsOneWayPlatform);
@@ -1739,6 +1736,20 @@ namespace Giometric.UniSonic
             grappleAttached = false;
             isBraking = false;
             return true;
+        }
+
+        private static bool HasGrapplePointTag(Transform target)
+        {
+            while (target != null)
+            {
+                if (target.CompareTag(grapplePointTag))
+                {
+                    return true;
+                }
+                target = target.parent;
+            }
+
+            return false;
         }
 
         private GroundMode GetGroundModeFromNormal(Vector2 normal)

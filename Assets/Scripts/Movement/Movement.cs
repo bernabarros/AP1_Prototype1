@@ -1037,7 +1037,8 @@ namespace Giometric.UniSonic
                         grappleWallAttached = false;
                         Grounded = false;
                         groundMode = GroundMode.Floor;
-                        velocity = grapplePointLaunchDirection * grapplePointLaunchSpeed;
+                        velocity = grapplePointLaunchDirection * grapplePointLaunchSpeed +
+                            Vector2.up * grapplePointLaunchSpeed;
                         Jumped = true;
                     }
                     else if (grappleShouldJumpToPlatform)

@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 682184914850520922}
   - component: {fileID: 682184914850520934}
   - component: {fileID: 1748846225642257344}
+  - component: {fileID: 7755898402144404892}
   m_Layer: 6
   m_Name: Sonic
   m_TagString: Player
@@ -154,19 +155,20 @@ MonoBehaviour:
   brakeDustCloudXPos: 10
   waterSplashParticles: {fileID: 6129076507540190017}
   hitbox: {fileID: 682184914850520934}
-  standingHitboxSize: {x: 18, y: 34}
+  standingHitboxSize: {x: 18, y: 20}
   shortHitboxSize: {x: 18, y: 20}
   spinDashRevAmount: 120
   spinDashBaseLaunchSpeed: 480
   allowSpinDashNearLedges: 0
   grappleRange: 128
   grapplePullSpeed: 480
+  grapplePointLaunchSpeed: 480
   unattachedGrappleVisualScale: 0.25
   grappleButtonAnimationDuration: 0.14
   grappleLineWidth: 2
   grappleLine: {fileID: 6267613437339313158}
-  standingHeightHalf: 20
-  ballHeightHalf: 15
+  standingHeightHalf: 13
+  ballHeightHalf: 13
   groundRaycastDist: 36
   standingWidthHalf: 10
   ballWidthHalf: 8
@@ -214,7 +216,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCharacter: {fileID: 682184914850520923}
-  grappleKey: 120
+  inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
 --- !u!95 &682184914850520921
 Animator:
   serializedVersion: 7
@@ -369,6 +371,18 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &7755898402144404892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 682184914850520935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abd57c7f16b913b42a1790cbdb872b0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExitFunction
 --- !u!1 &1970681804787803850
 GameObject:
   m_ObjectHideFlags: 0

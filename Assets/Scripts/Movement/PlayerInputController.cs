@@ -1,34 +1,38 @@
 using UnityEngine;
-using System.Collections;
+using UnityEngine.InputSystem;
 
-namespace Giometric.UniSonic
+public class PlayerInputController : MonoBehaviour
 {
-    public class PlayerInputController : MonoBehaviour
+    [SerializeField] private Movement playerCharacter;
+    [SerializeField] private InputActionAsset inputActions;
+    private InputAction move;
+    private InputAction jump;
+    private InputAction grapple;
+
+    public Movement PlayerCharacter { get { return playerCharacter; } }
+
+    private void Awake()
     {
-        [SerializeField] private Movement playerCharacter;
-        [SerializeField] private KeyCode grappleKey = KeyCode.E;
-        public Movement PlayerCharacter { get { return playerCharacter; } }
+        move = inputActions.FindAction("Move");
+        jump = inputActions.FindAction("Jump");
+        grapple = inputActions.FindAction("Grapple");
+    }
 
-        private void Awake()
-        {
-            if (playerCharacter == null)
-            {
-                enabled = false;
-                return;
-            }
-        }
+    private void OnEnable()
+    {
+        inputActions.Enable();
+    }
 
-        private void Update()
-        {
-            Vector2 inputMove = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            playerCharacter.InputMove = inputMove.normalized;
-            playerCharacter.InputJump = Input.GetButton("Jump");
-            playerCharacter.InputGrapple = Input.GetKey(grappleKey);
+    private void OnDisable()
+    {
+        inputActions.Disable();
+    }
 
-            if (Input.GetButtonDown("Pause"))
-            {
-                // TODO: Pause ticks for player movement
-            }
-        }
+    private void Update()
+    {
+        Vector2 inputMove = move.ReadValue<Vector2>();
+        playerCharacter.InputMove = inputMove.normalized;
+        playerCharacter.InputJump = jump.IsPressed();
+        playerCharacter.InputGrapple = grapple.IsPressed();
     }
 }

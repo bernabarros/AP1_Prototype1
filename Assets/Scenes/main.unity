@@ -13087,11 +13087,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 731924131}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &319267686 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 682184914850520935, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
-  m_PrefabInstance: {fileID: 682184914527194747}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &324192242
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34175,24 +34170,12 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 682184914850520923, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
   m_PrefabInstance: {fileID: 682184914527194747}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 319267686}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7dc7b613a4fa48642991f1bf00d3b155, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1833799975
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 319267686}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abd57c7f16b913b42a1790cbdb872b0f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ExitFunction
 --- !u!1 &1839525563
 GameObject:
   m_ObjectHideFlags: 0
@@ -34749,9 +34732,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 682184914850520923, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
+      propertyPath: smoothRotation
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 682184914850520927, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
-      propertyPath: grappleKey
-      value: 103
+      propertyPath: jump.m_Name
+      value: Jump
+      objectReference: {fileID: 0}
+    - target: {fileID: 682184914850520927, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
+      propertyPath: move.m_Name
+      value: Move
+      objectReference: {fileID: 0}
+    - target: {fileID: 682184914850520927, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
+      propertyPath: grappleKey.m_Name
+      value: Grapple Key
       objectReference: {fileID: 0}
     - target: {fileID: 682184914850520932, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
       propertyPath: m_LocalPosition.x
@@ -34797,13 +34792,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sonic
       objectReference: {fileID: 0}
+    - target: {fileID: 6966780307716272233, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 9.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6966780307716272233, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 682184914850520935, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1833799975}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
 --- !u!1001 &2810526435208360692
 PrefabInstance:

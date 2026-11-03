@@ -41,6 +41,7 @@ public class Ring : ObjectTriggerBase
         if (CanBeCollected && !player.IsHit)
         {
             player.Rings += addCount;
+            Score.Instance.AddScore(addCount * 10);
             IsCollected = true;
             OnCollected();
         }

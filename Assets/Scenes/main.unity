@@ -27641,8 +27641,8 @@ Tilemap:
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: -127, y: -21, z: 0}
-  m_Size: {x: 306, y: 109, z: 1}
+  m_Origin: {x: -127, y: -41, z: 0}
+  m_Size: {x: 306, y: 129, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -34075,8 +34075,8 @@ Tilemap:
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: -59, y: -12, z: 0}
-  m_Size: {x: 234, y: 100, z: 1}
+  m_Origin: {x: -67, y: -12, z: 0}
+  m_Size: {x: 242, y: 100, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -34103,7 +34103,7 @@ TilemapCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1302199677}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -34141,7 +34141,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1302199677}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -35167,11 +35167,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 682184914850520932, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1876
+      value: -1946
       objectReference: {fileID: 0}
     - target: {fileID: 682184914850520932, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -269
+      value: -285
       objectReference: {fileID: 0}
     - target: {fileID: 682184914850520932, guid: d7775285328f74491bbfcc0fa216b372, type: 3}
       propertyPath: m_LocalPosition.z
